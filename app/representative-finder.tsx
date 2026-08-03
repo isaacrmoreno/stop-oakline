@@ -1,7 +1,7 @@
 'use client'
 
-import { startTransition, useEffect, useMemo, useRef, useState, useTransition } from 'react'
-import { Check, Copy, LoaderCircle, Mail, MapPinHouse, Phone, Send, ShieldCheck } from 'lucide-react'
+import { startTransition, useEffect, useRef, useState, useTransition } from 'react'
+import { LoaderCircle, Mail, MapPinHouse, Phone, Send, ShieldCheck } from 'lucide-react'
 
 type LookupSuccess = {
   address: string
@@ -81,27 +81,10 @@ export default function RepresentativeFinder() {
   const [address, setAddress] = useState('')
   const [result, setResult] = useState<LookupSuccess | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [subject, setSubject] = useState('')
-  const [body, setBody] = useState('')
-  const [draftVisible, setDraftVisible] = useState(false)
   const [autocompleteReady, setAutocompleteReady] = useState(false)
   const [isPending, startLookup] = useTransition()
   const [selectedCoordinates, setSelectedCoordinates] = useState<{ lat: number; lng: number } | null>(null)
-  const [copiedField, setCopiedField] = useState<string | null>(null)
   const widgetHostRef = useRef<HTMLDivElement | null>(null)
-
-  const mailtoHref = useMemo(() => {
-    if (!result || !draftVisible) {
-      return '#'
-    }
-
-    const params = new URLSearchParams({
-      subject,
-      body
-    })
-
-    return `mailto:${result.email}?${params.toString()}`
-  }, [body, draftVisible, result, subject])
 
   useEffect(() => {
     if (!GOOGLE_MAPS_API_KEY || !widgetHostRef.current) {
@@ -202,15 +185,10 @@ export default function RepresentativeFinder() {
 
         startTransition(() => {
           setResult(payload)
-          const draft = buildDraft(payload)
-          setSubject(draft.subject)
-          setBody(draft.body)
-          setDraftVisible(false)
         })
       } catch (submissionError) {
         startTransition(() => {
           setResult(null)
-          setDraftVisible(false)
           setError(
             submissionError instanceof Error
               ? submissionError.message
@@ -227,21 +205,7 @@ export default function RepresentativeFinder() {
     }
 
     const draft = buildDraft(result)
-    setSubject(draft.subject)
-    setBody(draft.body)
-    setDraftVisible(true)
-  }
-
-  async function handleCopy(value: string, field: string) {
-    try {
-      await navigator.clipboard.writeText(normalizeCopiedText(value))
-      setCopiedField(field)
-      window.setTimeout(() => {
-        setCopiedField((current) => (current === field ? null : current))
-      }, 1800)
-    } catch {
-      setCopiedField(null)
-    }
+    window.location.href = `mailto:${encodeURIComponent(result.email)}?subject=${encodeMailtoValue(draft.subject)}&body=${encodeMailtoValue(draft.body)}`
   }
 
   return (
@@ -338,104 +302,17 @@ export default function RepresentativeFinder() {
               type='button'
             >
               <Send className='size-4' />
-              Generate email draft
+              Open drafted email
             </button>
           </div>
-
-          {draftVisible ? (
-            <div className='rounded-[1.5rem] border border-[var(--line)] bg-white p-4 sm:rounded-[1.75rem] sm:p-6'>
-              <p className='text-sm font-semibold uppercase tracking-[0.24em] text-[var(--clay)]'>
-                Write a message
-              </p>
-
-              <div className='mt-5 space-y-4'>
-                <div>
-                  <div className='mb-2 flex items-center justify-between gap-3'>
-                    <span className='text-sm font-medium text-[var(--ink)]'>Subject</span>
-                    <CopyButton
-                      copied={copiedField === 'subject'}
-                      onClick={() => handleCopy(subject, 'subject')}
-                    />
-                  </div>
-                  <textarea
-                    className='min-h-26 w-full rounded-[1.25rem] border border-[var(--line)] bg-[var(--paper)] px-4 py-4 text-base leading-6 text-[var(--ink)] outline-none transition focus:border-[var(--clay)] focus:ring-4 focus:ring-[color:rgba(235,127,44,0.14)]'
-                    onChange={(event) => setSubject(event.target.value)}
-                    value={subject}
-                  />
-                </div>
-
-                <div>
-                  <div className='mb-2 flex items-center justify-between gap-3'>
-                    <span className='text-sm font-medium text-[var(--ink)]'>Message</span>
-                    <CopyButton
-                      copied={copiedField === 'body'}
-                      onClick={() => handleCopy(body, 'body')}
-                    />
-                  </div>
-                  <textarea
-                    className='min-h-72 w-full rounded-[1.25rem] border border-[var(--line)] bg-[var(--paper)] px-4 py-4 text-base leading-7 text-[var(--ink)] outline-none transition focus:border-[var(--clay)] focus:ring-4 focus:ring-[color:rgba(235,127,44,0.14)]'
-                    onChange={(event) => setBody(event.target.value)}
-                    value={body}
-                  />
-                </div>
-
-                <div className='grid gap-3 sm:grid-cols-2'>
-                  <button
-                    className='inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--paper)] px-5 py-3 text-sm font-semibold text-[var(--ink)] transition hover:border-[var(--clay)]'
-                    onClick={() => handleCopy(`${subject}\n\n${body}`, 'all')}
-                    type='button'
-                  >
-                    {copiedField === 'all' ? <Check className='size-4' /> : <Copy className='size-4' />}
-                    {copiedField === 'all' ? 'Copied draft' : 'Copy all'}
-                  </button>
-                  <a
-                    className='inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--pine)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--pine-deep)]'
-                    href={mailtoHref}
-                  >
-                    <Mail className='size-4' />
-                    Open email app
-                  </a>
-                </div>
-              </div>
-            </div>
-          ) : null}
         </div>
       ) : null}
     </section>
   )
 }
 
-function normalizeCopiedText(value: string) {
-  const looksEncoded = /%0A|%20|%2C|%3A|%40|\+/.test(value)
-
-  if (!looksEncoded) {
-    return value
-  }
-
-  try {
-    return decodeURIComponent(value.replace(/\+/g, ' '))
-  } catch {
-    return value
-  }
-}
-
-function CopyButton({
-  copied,
-  onClick
-}: {
-  copied: boolean
-  onClick: () => void
-}) {
-  return (
-    <button
-      className='inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--line)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--ink)] transition hover:border-[var(--clay)]'
-      onClick={onClick}
-      type='button'
-    >
-      {copied ? <Check className='size-3.5' /> : <Copy className='size-3.5' />}
-      {copied ? 'Copied' : 'Copy'}
-    </button>
-  )
+function encodeMailtoValue(value: string) {
+  return encodeURIComponent(value).replace(/%20/g, '%20')
 }
 
 function loadGooglePlacesLibrary(apiKey: string) {
