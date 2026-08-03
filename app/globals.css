@@ -155,4 +155,17 @@
   h6 {
     font-family: var(--font-display);
   }
+  textarea,
+  input {
+    max-width: 100%;
+  }
+}
+
+@layer components {
+  .google-place-autocomplete {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow: hidden;
+  }
 }

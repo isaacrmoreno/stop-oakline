@@ -1,7 +1,7 @@
 'use client'
 
 import { startTransition, useEffect, useMemo, useRef, useState, useTransition } from 'react'
-import { LoaderCircle, Mail, MapPinHouse, Phone, Send, ShieldCheck } from 'lucide-react'
+import { Check, Copy, LoaderCircle, Mail, MapPinHouse, Phone, Send, ShieldCheck } from 'lucide-react'
 
 type LookupSuccess = {
   address: string
@@ -87,6 +87,7 @@ export default function RepresentativeFinder() {
   const [autocompleteReady, setAutocompleteReady] = useState(false)
   const [isPending, startLookup] = useTransition()
   const [selectedCoordinates, setSelectedCoordinates] = useState<{ lat: number; lng: number } | null>(null)
+  const [copiedField, setCopiedField] = useState<string | null>(null)
   const widgetHostRef = useRef<HTMLDivElement | null>(null)
 
   const mailtoHref = useMemo(() => {
@@ -231,23 +232,37 @@ export default function RepresentativeFinder() {
     setDraftVisible(true)
   }
 
+  async function handleCopy(value: string, field: string) {
+    try {
+      await navigator.clipboard.writeText(value)
+      setCopiedField(field)
+      window.setTimeout(() => {
+        setCopiedField((current) => (current === field ? null : current))
+      }, 1800)
+    } catch {
+      setCopiedField(null)
+    }
+  }
+
   return (
-    <section className='w-full max-w-xl shrink-0 rounded-[2rem] border border-white/60 bg-white/88 p-6 shadow-[0_26px_80px_rgba(8,29,23,0.14)] backdrop-blur sm:p-8'>
-      <div className='flex items-start justify-between gap-4'>
-        <div>
+    <section className='w-full max-w-xl shrink-0 rounded-[1.75rem] border border-white/60 bg-white/88 p-4 shadow-[0_26px_80px_rgba(8,29,23,0.14)] backdrop-blur sm:rounded-[2rem] sm:p-8'>
+      <div className='flex items-start justify-between gap-3'>
+        <div className='min-w-0'>
           <p className='text-sm font-semibold uppercase tracking-[0.24em] text-[var(--clay)]'>Start here</p>
-          <h2 className='mt-3 text-3xl font-semibold tracking-[-0.03em] text-[var(--ink)]'>Enter your address</h2>
-          <p className='mt-3 max-w-md text-sm leading-6 text-[color:rgba(29,37,35,0.72)]'>
+          <h2 className='mt-2 text-[2rem] font-semibold tracking-[-0.03em] text-[var(--ink)] sm:mt-3 sm:text-3xl'>
+            Enter your address
+          </h2>
+          <p className='mt-2 max-w-md text-sm leading-6 text-[color:rgba(29,37,35,0.72)] sm:mt-3'>
             We&apos;ll match it to your Salem ward and show the right person to contact.
           </p>
         </div>
-        <div className='rounded-2xl bg-[var(--cream)] p-3 text-[var(--pine)]'>
-          <MapPinHouse className='size-6' />
+        <div className='rounded-2xl bg-[var(--cream)] p-2.5 text-[var(--pine)] sm:p-3'>
+          <MapPinHouse className='size-5 sm:size-6' />
         </div>
       </div>
 
       <form className='mt-8 space-y-4' onSubmit={handleSubmit}>
-        <div className='rounded-[1.75rem] border border-[var(--line)] bg-[var(--paper)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)]'>
+        <div className='overflow-hidden rounded-[1.5rem] border border-[var(--line)] bg-[var(--paper)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] sm:rounded-[1.75rem]'>
           <div className='flex flex-col gap-3'>
             <div className='min-w-0 w-full' ref={widgetHostRef} />
             <button
@@ -266,7 +281,7 @@ export default function RepresentativeFinder() {
         </div>
       </form>
 
-      <div className='mt-4 inline-flex items-center gap-2 rounded-full bg-[var(--mist)] px-3 py-2 text-xs text-[color:rgba(29,37,35,0.75)]'>
+      <div className='mt-4 inline-flex max-w-full items-center gap-2 rounded-full bg-[var(--mist)] px-3 py-2 text-xs leading-5 text-[color:rgba(29,37,35,0.75)]'>
         <ShieldCheck className='size-4 text-[var(--pine)]' />
         We do not store your address or contact details.
       </div>
@@ -279,16 +294,16 @@ export default function RepresentativeFinder() {
 
       {result ? (
         <div className='mt-8 space-y-6'>
-          <div className='rounded-[1.75rem] border border-[var(--line)] bg-[var(--paper)] p-6'>
+          <div className='rounded-[1.5rem] border border-[var(--line)] bg-[var(--paper)] p-4 sm:rounded-[1.75rem] sm:p-6'>
             <div className='flex flex-wrap items-start justify-between gap-4'>
-              <div>
+              <div className='min-w-0 flex-1'>
                 <p className='text-sm font-semibold uppercase tracking-[0.24em] text-[var(--clay)]'>
                   Ward {result.ward}
                 </p>
-                <h3 className='mt-2 text-2xl font-semibold tracking-[-0.03em] text-[var(--ink)]'>
+                <h3 className='mt-2 break-words text-[1.75rem] font-semibold tracking-[-0.03em] text-[var(--ink)] sm:text-2xl'>
                   {result.councilor}
                 </h3>
-                <p className='mt-2 max-w-md text-sm leading-6 text-[color:rgba(29,37,35,0.8)]'>
+                <p className='mt-2 max-w-md break-words text-sm leading-6 text-[color:rgba(29,37,35,0.8)]'>
                   Neighborhood association: {result.neighborhood}
                 </p>
               </div>
@@ -296,17 +311,17 @@ export default function RepresentativeFinder() {
                 <p className='text-xs font-semibold uppercase tracking-[0.2em] text-[var(--clay)]'>
                   Matched address
                 </p>
-                <p className='mt-1 text-sm leading-5 text-[var(--ink)]'>{result.address}</p>
+                <p className='mt-1 break-words text-sm leading-5 text-[var(--ink)]'>{result.address}</p>
               </div>
             </div>
 
             <div className='mt-6 grid gap-3'>
               <a
-                className='inline-flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--clay)]'
+                className='inline-flex min-w-0 items-center gap-3 rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--clay)]'
                 href={`mailto:${result.email}`}
               >
                 <Mail className='size-4 text-[var(--pine)]' />
-                {result.email}
+                <span className='min-w-0 break-all'>{result.email}</span>
               </a>
               <a
                 className='inline-flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--clay)]'
@@ -318,7 +333,7 @@ export default function RepresentativeFinder() {
             </div>
 
             <button
-              className='mt-6 inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--clay)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--clay-deep)]'
+              className='mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--clay)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--clay-deep)] sm:w-auto'
               onClick={handleGenerateDraft}
               type='button'
             >
@@ -328,41 +343,84 @@ export default function RepresentativeFinder() {
           </div>
 
           {draftVisible ? (
-            <div className='rounded-[1.75rem] border border-[var(--line)] bg-white p-6'>
+            <div className='rounded-[1.5rem] border border-[var(--line)] bg-white p-4 sm:rounded-[1.75rem] sm:p-6'>
               <p className='text-sm font-semibold uppercase tracking-[0.24em] text-[var(--clay)]'>
                 Write a message
               </p>
 
-              <label className='mt-5 block'>
-                <span className='mb-2 block text-sm font-medium text-[var(--ink)]'>Subject</span>
-                <input
-                  className='w-full rounded-2xl border border-[var(--line)] bg-[var(--paper)] px-4 py-3 text-base text-[var(--ink)] outline-none transition focus:border-[var(--clay)] focus:ring-4 focus:ring-[color:rgba(235,127,44,0.14)]'
-                  onChange={(event) => setSubject(event.target.value)}
-                  value={subject}
-                />
-              </label>
+              <div className='mt-5 space-y-4'>
+                <div>
+                  <div className='mb-2 flex items-center justify-between gap-3'>
+                    <span className='text-sm font-medium text-[var(--ink)]'>Subject</span>
+                    <CopyButton
+                      copied={copiedField === 'subject'}
+                      onClick={() => handleCopy(subject, 'subject')}
+                    />
+                  </div>
+                  <textarea
+                    className='min-h-26 w-full rounded-[1.25rem] border border-[var(--line)] bg-[var(--paper)] px-4 py-4 text-base leading-6 text-[var(--ink)] outline-none transition focus:border-[var(--clay)] focus:ring-4 focus:ring-[color:rgba(235,127,44,0.14)]'
+                    onChange={(event) => setSubject(event.target.value)}
+                    value={subject}
+                  />
+                </div>
 
-              <label className='mt-4 block'>
-                <span className='mb-2 block text-sm font-medium text-[var(--ink)]'>Message</span>
-                <textarea
-                  className='min-h-64 w-full rounded-[1.5rem] border border-[var(--line)] bg-[var(--paper)] px-4 py-4 text-base leading-7 text-[var(--ink)] outline-none transition focus:border-[var(--clay)] focus:ring-4 focus:ring-[color:rgba(235,127,44,0.14)]'
-                  onChange={(event) => setBody(event.target.value)}
-                  value={body}
-                />
-              </label>
+                <div>
+                  <div className='mb-2 flex items-center justify-between gap-3'>
+                    <span className='text-sm font-medium text-[var(--ink)]'>Message</span>
+                    <CopyButton
+                      copied={copiedField === 'body'}
+                      onClick={() => handleCopy(body, 'body')}
+                    />
+                  </div>
+                  <textarea
+                    className='min-h-72 w-full rounded-[1.25rem] border border-[var(--line)] bg-[var(--paper)] px-4 py-4 text-base leading-7 text-[var(--ink)] outline-none transition focus:border-[var(--clay)] focus:ring-4 focus:ring-[color:rgba(235,127,44,0.14)]'
+                    onChange={(event) => setBody(event.target.value)}
+                    value={body}
+                  />
+                </div>
 
-              <a
-                className='mt-5 inline-flex items-center justify-center gap-2 rounded-2xl bg-[var(--pine)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--pine-deep)]'
-                href={mailtoHref}
-              >
-                <Mail className='size-4' />
-                Open email app
-              </a>
+                <div className='grid gap-3 sm:grid-cols-2'>
+                  <button
+                    className='inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[var(--line)] bg-[var(--paper)] px-5 py-3 text-sm font-semibold text-[var(--ink)] transition hover:border-[var(--clay)]'
+                    onClick={() => handleCopy(`${subject}\n\n${body}`, 'all')}
+                    type='button'
+                  >
+                    {copiedField === 'all' ? <Check className='size-4' /> : <Copy className='size-4' />}
+                    {copiedField === 'all' ? 'Copied draft' : 'Copy all'}
+                  </button>
+                  <a
+                    className='inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--pine)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--pine-deep)]'
+                    href={mailtoHref}
+                  >
+                    <Mail className='size-4' />
+                    Open email app
+                  </a>
+                </div>
+              </div>
             </div>
           ) : null}
         </div>
       ) : null}
     </section>
+  )
+}
+
+function CopyButton({
+  copied,
+  onClick
+}: {
+  copied: boolean
+  onClick: () => void
+}) {
+  return (
+    <button
+      className='inline-flex shrink-0 items-center gap-1.5 rounded-full border border-[var(--line)] bg-white px-3 py-1.5 text-xs font-semibold text-[var(--ink)] transition hover:border-[var(--clay)]'
+      onClick={onClick}
+      type='button'
+    >
+      {copied ? <Check className='size-3.5' /> : <Copy className='size-3.5' />}
+      {copied ? 'Copied' : 'Copy'}
+    </button>
   )
 }
 
