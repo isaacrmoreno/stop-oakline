@@ -234,7 +234,7 @@ export default function RepresentativeFinder() {
 
   async function handleCopy(value: string, field: string) {
     try {
-      await navigator.clipboard.writeText(value)
+      await navigator.clipboard.writeText(normalizeCopiedText(value))
       setCopiedField(field)
       window.setTimeout(() => {
         setCopiedField((current) => (current === field ? null : current))
@@ -403,6 +403,20 @@ export default function RepresentativeFinder() {
       ) : null}
     </section>
   )
+}
+
+function normalizeCopiedText(value: string) {
+  const looksEncoded = /%0A|%20|%2C|%3A|%40|\+/.test(value)
+
+  if (!looksEncoded) {
+    return value
+  }
+
+  try {
+    return decodeURIComponent(value.replace(/\+/g, ' '))
+  } catch {
+    return value
+  }
 }
 
 function CopyButton({
