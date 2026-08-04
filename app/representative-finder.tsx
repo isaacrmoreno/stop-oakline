@@ -1,7 +1,7 @@
 'use client'
 
 import { startTransition, useEffect, useRef, useState, useTransition } from 'react'
-import { LoaderCircle, Mail, MapPinHouse, Phone, Send, ShieldCheck } from 'lucide-react'
+import { LoaderCircle, Mail, MapPinHouse, Phone } from 'lucide-react'
 
 type LookupSuccess = {
   address: string
@@ -56,10 +56,17 @@ declare global {
 
 const GOOGLE_MAPS_API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
 
+function formatDisplayName(value: string) {
+  return value
+    .toLowerCase()
+    .replace(/\b[a-z]/g, (letter) => letter.toUpperCase())
+}
+
 function buildDraft(result: LookupSuccess) {
+  const councilorName = formatDisplayName(result.councilor)
   const subject = `Please oppose Oakline at Mill Creek in Ward ${result.ward}`
   const body = [
-    `Dear Councilor ${result.councilor},`,
+    `Dear Councilor ${councilorName},`,
     '',
     `I live in Ward ${result.ward} and I am writing to urge you to oppose Oakline at Mill Creek.`,
     '',
@@ -199,25 +206,17 @@ export default function RepresentativeFinder() {
     })
   }
 
-  function handleGenerateDraft() {
-    if (!result) {
-      return
-    }
-
-    const draft = buildDraft(result)
-    window.location.href = `mailto:${encodeURIComponent(result.email)}?subject=${encodeMailtoValue(draft.subject)}&body=${encodeMailtoValue(draft.body)}`
-  }
-
   return (
-    <section className='w-full max-w-xl shrink-0 rounded-[1.75rem] border border-white/60 bg-white/88 p-4 shadow-[0_26px_80px_rgba(8,29,23,0.14)] backdrop-blur sm:rounded-[2rem] sm:p-8'>
-      <div className='flex items-start justify-between gap-3'>
+    <section
+      className='w-full max-w-none shrink-0 scroll-mt-24 rounded-[1.75rem] border border-white/60 bg-white/88 p-4 shadow-[0_26px_80px_rgba(8,29,23,0.14)] backdrop-blur sm:rounded-[2rem] sm:p-6'
+      id='lookup'>
+      <div className='flex items-center justify-between gap-3'>
         <div className='min-w-0'>
-          <p className='text-sm font-semibold uppercase tracking-[0.24em] text-[var(--clay)]'>Start here</p>
-          <h2 className='mt-2 text-[2rem] font-semibold tracking-[-0.03em] text-[var(--ink)] sm:mt-3 sm:text-3xl'>
+          <h2 className='text-[2rem] font-semibold tracking-[-0.03em] text-[var(--ink)] sm:text-3xl'>
             Enter your address
           </h2>
-          <p className='mt-2 max-w-md text-sm leading-6 text-[color:rgba(29,37,35,0.72)] sm:mt-3'>
-            We&apos;ll match it to your Salem ward and show the right person to contact.
+          <p className='mt-1 text-sm leading-6 text-[color:rgba(29,37,35,0.68)]'>
+            Find your Salem City Council representative.
           </p>
         </div>
         <div className='rounded-2xl bg-[var(--cream)] p-2.5 text-[var(--pine)] sm:p-3'>
@@ -225,19 +224,18 @@ export default function RepresentativeFinder() {
         </div>
       </div>
 
-      <form className='mt-8 space-y-4' onSubmit={handleSubmit}>
-        <div className='overflow-hidden rounded-[1.5rem] border border-[var(--line)] bg-[var(--paper)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] sm:rounded-[1.75rem]'>
-          <div className='flex flex-col gap-3'>
-            <div className='min-w-0 w-full' ref={widgetHostRef} />
+      <form className='mt-2 space-y-3 sm:mt-3' onSubmit={handleSubmit}>
+        <div className='overflow-visible rounded-[1.5rem] border border-[var(--line)] bg-[var(--paper)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] sm:rounded-[1.75rem]'>
+          <div className='flex flex-col gap-2.5'>
+            <div className='relative z-20 min-w-0 w-full rounded-2xl' ref={widgetHostRef} />
             <button
-              className='inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--pine)] px-5 py-4 text-base font-semibold text-white transition hover:bg-[var(--pine-deep)] disabled:cursor-not-allowed disabled:bg-[color:rgba(33,94,78,0.55)]'
+              className='inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--pine)] px-5 py-3.5 text-base font-semibold text-white transition hover:bg-[var(--pine-deep)] disabled:cursor-not-allowed disabled:bg-[color:rgba(33,94,78,0.55)]'
               disabled={isPending || !autocompleteReady}
-              type='submit'
-            >
+              type='submit'>
               {isPending ? (
-                <LoaderCircle className='size-5 animate-spin' />
+                <LoaderCircle className='hidden size-5 animate-spin sm:block' />
               ) : (
-                <MapPinHouse className='size-5' />
+                <MapPinHouse className='hidden size-5 sm:block' />
               )}
               {isPending ? 'Looking up...' : 'Find my representative'}
             </button>
@@ -245,65 +243,44 @@ export default function RepresentativeFinder() {
         </div>
       </form>
 
-      <div className='mt-4 inline-flex max-w-full items-center gap-2 rounded-full bg-[var(--mist)] px-3 py-2 text-xs leading-5 text-[color:rgba(29,37,35,0.75)]'>
-        <ShieldCheck className='size-4 text-[var(--pine)]' />
-        We do not store your address or contact details.
-      </div>
-
       {error ? (
-        <div className='mt-6 rounded-2xl border border-[color:rgba(189,65,47,0.18)] bg-[color:rgba(189,65,47,0.08)] px-4 py-3 text-sm leading-6 text-[var(--redwood)]'>
+        <div className='mt-4 rounded-2xl border border-[color:rgba(189,65,47,0.18)] bg-[color:rgba(189,65,47,0.08)] px-4 py-3 text-sm leading-6 text-[var(--redwood)]'>
           {error}
         </div>
       ) : null}
 
       {result ? (
-        <div className='mt-8 space-y-6'>
-          <div className='rounded-[1.5rem] border border-[var(--line)] bg-[var(--paper)] p-4 sm:rounded-[1.75rem] sm:p-6'>
-            <div className='flex flex-wrap items-start justify-between gap-4'>
+        <div className='mt-5 space-y-4'>
+          <div className='rounded-[1.5rem] border border-[var(--line)] bg-[var(--paper)] p-4 sm:rounded-[1.75rem] sm:p-5'>
+            <div className='flex flex-col gap-3'>
               <div className='min-w-0 flex-1'>
                 <p className='text-sm font-semibold uppercase tracking-[0.24em] text-[var(--clay)]'>
                   Ward {result.ward}
                 </p>
                 <h3 className='mt-2 break-words text-[1.75rem] font-semibold tracking-[-0.03em] text-[var(--ink)] sm:text-2xl'>
-                  {result.councilor}
+                  {formatDisplayName(result.councilor)}
                 </h3>
-                <p className='mt-2 max-w-md break-words text-sm leading-6 text-[color:rgba(29,37,35,0.8)]'>
-                  Neighborhood association: {result.neighborhood}
-                </p>
-              </div>
-              <div className='w-full rounded-2xl bg-[var(--cream)] px-4 py-3 text-left sm:w-auto sm:max-w-[14rem] sm:text-right'>
-                <p className='text-xs font-semibold uppercase tracking-[0.2em] text-[var(--clay)]'>
-                  Matched address
-                </p>
-                <p className='mt-1 break-words text-sm leading-5 text-[var(--ink)]'>{result.address}</p>
+                <div className='mt-3 w-full rounded-2xl border border-[var(--line)] bg-white px-4 py-3'>
+                  <p className='text-xs font-semibold uppercase tracking-[0.2em] text-[var(--clay)]'>Matched Address</p>
+                  <p className='mt-1.5 break-words text-sm leading-6 text-[var(--ink)]'>{result.address}</p>
+                </div>
               </div>
             </div>
 
-            <div className='mt-6 grid gap-3'>
+            <div className='mt-4 flex flex-col gap-3 sm:flex-row'>
               <a
-                className='inline-flex min-w-0 items-center gap-3 rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--clay)]'
-                href={`mailto:${result.email}`}
-              >
+                className='inline-flex min-w-0 items-center gap-3 rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--clay)] sm:flex-1'
+                href={`mailto:${result.email}?subject=${encodeMailtoValue(`Ward ${result.ward} constituent reaching out about Oakline at Mill Creek`)}`}>
                 <Mail className='size-4 text-[var(--pine)]' />
                 <span className='min-w-0 break-all'>{result.email}</span>
               </a>
               <a
-                className='inline-flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--clay)]'
-                href={`tel:${result.phone}`}
-              >
+                className='inline-flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--clay)] sm:flex-1'
+                href={`tel:${result.phone}`}>
                 <Phone className='size-4 text-[var(--pine)]' />
                 {result.phone}
               </a>
             </div>
-
-            <button
-              className='mt-6 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--clay)] px-5 py-3 text-sm font-semibold text-white transition hover:bg-[var(--clay-deep)] sm:w-auto'
-              onClick={handleGenerateDraft}
-              type='button'
-            >
-              <Send className='size-4' />
-              Open drafted email
-            </button>
           </div>
         </div>
       ) : null}
@@ -325,9 +302,7 @@ function loadGooglePlacesLibrary(apiKey: string) {
   }
 
   window.__googleMapsPlacesLoader = new Promise<void>((resolve, reject) => {
-    const existingScript = document.querySelector(
-      'script[data-google-maps-places="true"]'
-    ) as HTMLScriptElement | null
+    const existingScript = document.querySelector('script[data-google-maps-places="true"]') as HTMLScriptElement | null
 
     if (existingScript) {
       existingScript.addEventListener('load', () => resolve(), { once: true })

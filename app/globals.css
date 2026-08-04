@@ -49,7 +49,7 @@
 }
 
 :root {
-  --background: oklch(0.98 0.014 84);
+  --background: #f6f4ee;
   --foreground: oklch(0.22 0.02 174);
   --card: oklch(0.995 0.01 84);
   --card-foreground: oklch(0.22 0.02 174);
@@ -81,19 +81,19 @@
   --sidebar-accent-foreground: oklch(0.22 0.02 174);
   --sidebar-border: oklch(0.89 0.016 84);
   --sidebar-ring: oklch(0.72 0.08 68);
-  --page-bg: #f6f0e2;
+  --page-bg: #f6f4ee;
   --paper: #fffaf1;
   --cream: #f6e4be;
   --mist: #ecf3ef;
   --ink: #1d2523;
-  --pine: #215e4e;
-  --pine-deep: #18463a;
+  --pine: #1f3d2b;
+  --pine-deep: #183021;
   --clay: #eb7f2c;
   --clay-deep: #c15d14;
   --redwood: #8e3d2e;
   --line: rgba(33, 49, 45, 0.12);
-  --font-body: "Avenir Next", "Segoe UI", "Helvetica Neue", sans-serif;
-  --font-display: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Georgia, serif;
+  --font-body: "Helvetica Neue", Arial, sans-serif;
+  --font-display: "Helvetica Neue", Arial, sans-serif;
   --font-code: "SFMono-Regular", "SF Mono", Consolas, "Liberation Mono", Menlo, monospace;
 }
 
@@ -145,7 +145,7 @@
     font-family: var(--font-body);
     background-image:
       linear-gradient(135deg, rgba(255, 255, 255, 0.38), transparent 45%),
-      linear-gradient(180deg, rgba(235, 127, 44, 0.06), transparent 40%);
+      linear-gradient(180deg, rgba(31, 61, 43, 0.05), transparent 40%);
   }
   h1,
   h2,
@@ -166,6 +166,7 @@
     display: block;
     width: 100%;
     max-width: 100%;
-    overflow: hidden;
+    overflow: visible;
+    border-radius: 1rem;
   }
 }
