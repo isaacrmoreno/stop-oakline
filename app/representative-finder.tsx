@@ -118,10 +118,9 @@ export default function RepresentativeFinder() {
         autocomplete.setAttribute('aria-label', 'Salem address')
 
         const scrollAutocompleteIntoView = () => {
-          const top = host.getBoundingClientRect().top + window.scrollY - 88
-          window.scrollTo({
-            top: Math.max(top, 0),
-            behavior: 'smooth'
+          host.scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
           })
         }
 
