@@ -117,6 +117,14 @@ export default function RepresentativeFinder() {
         autocomplete.includedRegionCodes = ['us']
         autocomplete.setAttribute('aria-label', 'Salem address')
 
+        const scrollAutocompleteIntoView = () => {
+          const top = host.getBoundingClientRect().top + window.scrollY - 88
+          window.scrollTo({
+            top: Math.max(top, 0),
+            behavior: 'smooth'
+          })
+        }
+
         const handleSelect = async (event: Event) => {
           const placePrediction = (event as GooglePlaceSelectEvent).placePrediction
           const place = placePrediction?.toPlace?.()
@@ -141,6 +149,7 @@ export default function RepresentativeFinder() {
           )
         }
 
+        autocomplete.addEventListener('focusin', scrollAutocompleteIntoView)
         autocomplete.addEventListener('gmp-select', handleSelect)
         host.appendChild(autocomplete)
         setAutocompleteReady(true)

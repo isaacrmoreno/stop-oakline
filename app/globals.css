@@ -168,5 +168,32 @@
     max-width: 100%;
     overflow: visible;
     border-radius: 1rem;
+    color: var(--ink);
+    background-color: #fff;
+    color-scheme: light;
+  }
+
+  .google-place-autocomplete::part(input) {
+    background-color: #fff;
+    color: var(--ink);
+    border-radius: 1rem;
+  }
+
+  .google-place-autocomplete::part(prediction-list) {
+    background-color: #fff;
+    color: var(--ink);
+  }
+
+  .google-place-autocomplete::part(prediction-item) {
+    background-color: #fff;
+    color: var(--ink);
+  }
+
+  .google-place-autocomplete::part(prediction-item-main-text) {
+    color: var(--ink);
+  }
+
+  .google-place-autocomplete::part(prediction-item-secondary-text) {
+    color: rgba(29, 37, 35, 0.68);
   }
 }
