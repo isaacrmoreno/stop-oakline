@@ -38,6 +38,7 @@ type GooglePlaceSelectEvent = Event & {
 type GooglePlaceAutocompleteElement = HTMLElement & {
   includedPrimaryTypes?: string[]
   includedRegionCodes?: string[]
+  noInputIcon?: boolean
 }
 
 declare global {
