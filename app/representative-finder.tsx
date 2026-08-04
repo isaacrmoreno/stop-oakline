@@ -115,6 +115,7 @@ export default function RepresentativeFinder() {
         autocomplete.className = 'google-place-autocomplete'
         autocomplete.includedPrimaryTypes = ['street_address']
         autocomplete.includedRegionCodes = ['us']
+        autocomplete.noInputIcon = true
         autocomplete.setAttribute('aria-label', 'Salem address')
 
         const scrollAutocompleteIntoView = () => {
@@ -227,27 +228,25 @@ export default function RepresentativeFinder() {
             Find your Salem City Council representative.
           </p>
         </div>
-        <div className='rounded-2xl bg-[var(--cream)] p-2.5 text-[var(--pine)] sm:p-3'>
-          <MapPinHouse className='size-5 sm:size-6' />
+        <div className='rounded-2xl bg-[var(--cream)] p-2 text-[var(--pine)] sm:p-3'>
+          <MapPinHouse className='size-4 sm:size-6' />
         </div>
       </div>
 
       <form className='mt-2 space-y-3 sm:mt-3' onSubmit={handleSubmit}>
-        <div className='overflow-visible rounded-[1.5rem] border border-[var(--line)] bg-[var(--paper)] p-3 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] sm:rounded-[1.75rem]'>
           <div className='flex flex-col gap-2.5'>
-            <div className='relative z-20 min-w-0 w-full rounded-2xl' ref={widgetHostRef} />
-            <button
-              className='inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--pine)] px-5 py-3.5 text-base font-semibold text-white transition hover:bg-[var(--pine-deep)] disabled:cursor-not-allowed disabled:bg-[color:rgba(33,94,78,0.55)]'
-              disabled={isPending || !autocompleteReady}
-              type='submit'>
-              {isPending ? (
-                <LoaderCircle className='hidden size-5 animate-spin sm:block' />
-              ) : (
-                <MapPinHouse className='hidden size-5 sm:block' />
-              )}
-              {isPending ? 'Looking up...' : 'Find my representative'}
-            </button>
-          </div>
+            <div className='relative z-20 min-h-[3.25rem] min-w-0 w-full rounded-2xl border border-[var(--line)] bg-white' ref={widgetHostRef} />
+          <button
+            className='inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--pine)] px-5 py-3.5 text-base font-semibold text-white transition hover:bg-[var(--pine-deep)] disabled:cursor-not-allowed disabled:bg-[color:rgba(33,94,78,0.55)]'
+            disabled={isPending || !autocompleteReady}
+            type='submit'>
+            {isPending ? (
+              <LoaderCircle className='hidden size-5 animate-spin sm:block' />
+            ) : (
+              <MapPinHouse className='hidden size-5 sm:block' />
+            )}
+            {isPending ? 'Looking up...' : 'Find my representative'}
+          </button>
         </div>
       </form>
 
@@ -259,36 +258,34 @@ export default function RepresentativeFinder() {
 
       {result ? (
         <div className='mt-5 space-y-4'>
-          <div className='rounded-[1.5rem] border border-[var(--line)] bg-[var(--paper)] p-4 sm:rounded-[1.75rem] sm:p-5'>
-            <div className='flex flex-col gap-3'>
-              <div className='min-w-0 flex-1'>
-                <p className='text-sm font-semibold uppercase tracking-[0.24em] text-[var(--clay)]'>
-                  Ward {result.ward}
-                </p>
-                <h3 className='mt-2 break-words text-[1.75rem] font-semibold tracking-[-0.03em] text-[var(--ink)] sm:text-2xl'>
-                  {formatDisplayName(result.councilor)}
-                </h3>
-                <div className='mt-3 w-full rounded-2xl border border-[var(--line)] bg-white px-4 py-3'>
-                  <p className='text-xs font-semibold uppercase tracking-[0.2em] text-[var(--clay)]'>Matched Address</p>
-                  <p className='mt-1.5 break-words text-sm leading-6 text-[var(--ink)]'>{result.address}</p>
-                </div>
+          <div className='flex flex-col gap-3'>
+            <div className='min-w-0 flex-1'>
+              <p className='text-sm font-semibold uppercase tracking-[0.24em] text-[var(--clay)]'>
+                Ward {result.ward}
+              </p>
+              <h3 className='mt-2 break-words text-[1.75rem] font-semibold tracking-[-0.03em] text-[var(--ink)] sm:text-2xl'>
+                {formatDisplayName(result.councilor)}
+              </h3>
+              <div className='mt-3 w-full rounded-2xl border border-[var(--line)] bg-white px-4 py-3'>
+                <p className='text-xs font-semibold uppercase tracking-[0.2em] text-[var(--clay)]'>Matched Address</p>
+                <p className='mt-1.5 break-words text-sm leading-6 text-[var(--ink)]'>{result.address}</p>
               </div>
             </div>
+          </div>
 
-            <div className='mt-4 flex flex-col gap-3 sm:flex-row'>
-              <a
-                className='inline-flex min-w-0 items-center gap-3 rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--clay)] sm:flex-1'
-                href={`mailto:${result.email}?subject=${encodeMailtoValue(`Ward ${result.ward} constituent reaching out about Oakline at Mill Creek`)}`}>
-                <Mail className='size-4 text-[var(--pine)]' />
-                <span className='min-w-0 break-all'>{result.email}</span>
-              </a>
-              <a
-                className='inline-flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--clay)] sm:flex-1'
-                href={`tel:${result.phone}`}>
-                <Phone className='size-4 text-[var(--pine)]' />
-                {result.phone}
-              </a>
-            </div>
+          <div className='flex flex-col gap-3 sm:flex-row'>
+            <a
+              className='inline-flex min-w-0 items-center gap-3 rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--clay)] sm:flex-1'
+              href={`mailto:${result.email}?subject=${encodeMailtoValue(`Ward ${result.ward} constituent reaching out about Oakline at Mill Creek`)}`}>
+              <Mail className='size-4 text-[var(--pine)]' />
+              <span className='min-w-0 break-all'>{result.email}</span>
+            </a>
+            <a
+              className='inline-flex items-center gap-3 rounded-2xl border border-[var(--line)] bg-white px-4 py-3 text-sm font-medium text-[var(--ink)] transition hover:border-[var(--clay)] sm:flex-1'
+              href={`tel:${result.phone}`}>
+              <Phone className='size-4 text-[var(--pine)]' />
+              {result.phone}
+            </a>
           </div>
         </div>
       ) : null}

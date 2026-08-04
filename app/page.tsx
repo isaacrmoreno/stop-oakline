@@ -80,7 +80,7 @@ export default function Home() {
     <main className='relative flex-1 overflow-hidden bg-[var(--page-bg)] text-[var(--ink)]' id='top'>
       <div className='pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(235,127,44,0.16),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(31,61,43,0.12),transparent_34%)]' />
 
-      <div className='relative mx-auto flex w-full max-w-6xl flex-col gap-12 px-4 py-8 sm:gap-16 sm:px-10 sm:py-10 lg:px-12 lg:py-16'>
+      <div className='relative mx-auto flex w-full max-w-6xl flex-col gap-10 px-3 py-8 sm:gap-16 sm:px-10 sm:py-10 lg:px-12 lg:py-16'>
         <section className='grid scroll-mt-24 gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(22rem,38rem)] lg:items-start' id='about'>
           <div className='max-w-2xl'>
             <h1 className='mt-5 max-w-3xl text-4xl font-semibold leading-none tracking-[-0.04em] text-balance sm:text-6xl'>
@@ -182,7 +182,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className='rounded-[1.75rem] border border-white/70 bg-white/84 p-5 shadow-[0_24px_60px_rgba(8,29,23,0.1)] backdrop-blur sm:p-6'>
+          <div className='rounded-[1.75rem] border border-white/70 bg-white/84 p-4 shadow-[0_24px_60px_rgba(8,29,23,0.1)] backdrop-blur sm:p-6'>
             <p className='text-sm font-semibold uppercase tracking-[0.2em] text-[var(--clay)]'>Quick links</p>
             <div className='mt-4 grid gap-3'>
               {sourceLinks.map((link) => (
